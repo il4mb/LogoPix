@@ -31,14 +31,17 @@ function LogoPix(src) {
     (() => loadImg())();
 
 
-    canvas.addEventListener("mousemove", (event) => {
+    canvas.addEventListener("mousemove", (e) => {
+        let X = (e.offsetX / e.toElement.clientWidth) * canvas.width;
+        let Y = (e.offsetY / e.toElement.clientHeight) * canvas.height;
+
         mouse = {
-            x: event.offsetX,
-            y: event.offsetY,
+            x: X,
+            y: Y,
             size: 35,
         }
     });
-    canvas.addEventListener("mouseleave", (event) => {
+    canvas.addEventListener("mouseleave", () => {
         mouse = null;
     });
 
@@ -342,7 +345,7 @@ function LogoPix(src) {
         return this;
     }
     Builder.prototype.setWidth = function (w) {
-     //  console.log(w)
+        //  console.log(w)
         canvas.width = w;
         return this;
     }
