@@ -1,19 +1,21 @@
 var canvas = document.createElement("canvas");
 const data = [];
+var mouse = null;
 window.addEventListener("DOMContentLoaded", () => {
     // canvas.style.background = "#ff88";
     document.body.append(canvas);
 });
 
 canvas.addEventListener("mousemove", (event) => {
-    draw()
-    drawDot(canvas.getContext("2d"), 75, event.offsetX, event.offsetY, "#ff44");
+    mouse = {
+        x: event.offsetX,
+        y: event.offsetY,
+        size: 35,
+    }
 
 });
 canvas.addEventListener("mouseleave", (event) => {
-    draw()
-   // drawDot(canvas.getContext("2d"), 75, event.offsetX, event.offsetY, "#ff44");
-
+    mouse = null;
 });
 
 const Bubbles = (id) => {
@@ -22,6 +24,7 @@ const Bubbles = (id) => {
      * @var Canvas canvas
      */
     let canvas2 = document.getElementById(id.replace("#", ""));
+   // canvas2.style.display = "none"
 
     canvas2.style.background = "#ff8";
 
@@ -31,7 +34,7 @@ const Bubbles = (id) => {
     var ctx = canvas2.getContext("2d");
 
 
-    let img = new Image();
+    let img = new Image(400, 400);
     img.crossOrigin = "anonymous"
 
     img.onload = () => {
@@ -44,7 +47,10 @@ const Bubbles = (id) => {
     }
 
     img.src = "https://il4mb.github.io/asset/vector/ILB-nobg.svg";
-    // img.src = "https://picsum.photos/200/300";
+    //img.src = "https://picsum.photos/200/300";
+
+    //img.src = "/black-dot.jpg";
+   // img.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Indosiar_2015.svg/300px-Indosiar_2015.svg.png"
 }
 
 function doRenderCopy(scanvas) {
@@ -52,8 +58,8 @@ function doRenderCopy(scanvas) {
     let time = 1;
     let size = 10;
 
-    let sw = scanvas.width //* 3;
-    let sh = scanvas.height// * 3;
+    let sw = scanvas.width; //* 3;
+    let sh = scanvas.height;// * 3;
 
     canvas.height = sh;
     canvas.width = sw;
@@ -62,20 +68,26 @@ function doRenderCopy(scanvas) {
 
         let dy = iy * size;
 
+       // setTimeout(() => {
 
-        for (let ix = 0; ix < sw / size; ix++) {
 
-            let dx = ix * size;
+            for (let ix = 0; ix < sw / size; ix++) {
 
-            var imgd = scanvas.getContext("2d").getImageData(dx, dy, size, size);
+                let dx = ix * size;
 
-            let f = getColorFromData(imgd.data, true);
+             //   setTimeout(() => {
 
-            if (f) {
-                data.push({ x: dx, y: dy, c: f })
+                    var imgd = scanvas.getContext("2d").getImageData(dx, dy, size, size);
+
+                    let f = getColorFromData(imgd.data, "#000000");
+
+                    if (f) {
+                        data.push({ x: dx, y: dy, c: f, s: size / 2.2})
+                    }
+                    drawSquare(scanvas.getContext("2d"), dx, dy, size, size);
+           //     }, 5 * ix)
             }
-           // drawSquare(scanvas.getContext("2d"), dx, dy, size, size);
-        }
+       // }, 200 * iy);
     }
     draw();
 }
@@ -85,27 +97,124 @@ function draw() {
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+    if (mouse) {
+
+      //  drawDot(canvas.getContext("2d"), mouse.size, mouse.x, mouse.y, "#ff44");
+    }
+
+
     data.forEach(item => {
 
-        drawDot(canvas.getContext("2d"), 5, item.x, item.y, item.c);
+        let y = item.y,
+            x = item.x;
+
+        if (item.move) {
+
+            let speed = 1;
+
+            let tx = Math.round(item.move.target.x),
+                ty = Math.round(item.move.target.y),
+                ox = Math.round(item.move.origin.x),
+                oy = Math.round(item.move.origin.y),
+                sx = Math.round(x),
+                sy = Math.round(y);
+
+            let xmath = ox > tx ? "-" : (ox < tx ? "+" : null);
+            let ymath = oy > ty ? "-" : (oy < ty ? "+" : null);
+
+            if (xmath == "-") {
+                item.move.origin.x -= speed;
+            } else if (xmath == "+") {
+                item.move.origin.x += speed;
+            }
+
+            if (ymath == "-") {
+                item.move.origin.y -= speed;
+            } else if (ymath == "+") {
+                item.move.origin.y += speed;
+            }
+
+            if ( ox == tx && oy == ty) {
+
+                if (mouse) {
+
+                    const R = mouse.size;
+                    const my = mouse.y;
+                    const mx = mouse.x;
+
+                    var dx = mx - x;
+                    var dy = my - y;
+
+                    var distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance -50> R) {
+                        item.move.target.x = item.x;
+                        item.move.target.y = item.y;
+                    }
+
+                } else {
+                    item.move.target.x = item.x;
+                    item.move.target.y = item.y;
+
+                }
+            }
+
+            y = item.move.origin.y;
+            x = item.move.origin.x;
+        }
+
+
+        let color = item.c;
+        drawDot(canvas.getContext("2d"), item.s, x, y, color);
+
+        if (mouse) {
+
+            const R = mouse.size;
+            const my = mouse.y;
+            const mx = mouse.x;
+
+            var dx = mx - x;
+            var dy = my - y;
+            let dix = x - mx;
+            let diy = y - my;
+
+            var distance = Math.sqrt(dx * dx + dy * dy);
+            let strenght = R - distance;
+            if (distance < R) {
+
+                let tx = x + (dix * strenght);
+                let ty = y + (diy * strenght);
+
+                item.move = {
+
+                    target: {
+                        x: tx,
+                        y: ty
+                    },
+                    origin: {
+                        x: x,
+                        y: y
+                    }
+                };
+
+            }
+        }
     })
-    // window.requestAnimationFrame(draw);
+
+    window.requestAnimationFrame(draw);
 }
 
-let last = { x: 0, y: 0 }
-function drawDot(ctx, s = 5, x, y, fill = false) {
+function drawDot(ctx, s = 0, x, y, fill = false) {
 
     ctx.beginPath();
     ctx.arc(x, y, s, 0, 2 * Math.PI);
+    ctx.strokeStyle = "rgb(0 0 0 /1)";
     ctx.stroke();
 
     if (fill || fill == "null") {
         ctx.fillStyle = fill;
         ctx.fill();
     }
-
-
-
     ctx.closePath();
 }
 
@@ -124,10 +233,12 @@ function drawSquare(ctx, x = 0, y = 0, w = 100, h = 100, fill = null) {
 
 }
 
-function getColorFromData(pixels, isTransparent = false) {
+function getColorFromData(pixels, transparent = false,) {
 
-    if (isTransparent) {
-        if (pixels[0] == 0 && pixels[1] == 0 && pixels[2] == 0) {
+    if (transparent) {
+        transparent = hexTorgba(String(transparent));
+
+        if (pixels[0] == transparent[0] && pixels[1] == transparent[1] && pixels[2] == transparent[2]) {
             return false;
         }
     }
@@ -157,8 +268,9 @@ function getColorFromData(pixels, isTransparent = false) {
     let hex = grouped[0].val;
     pixels = hexTorgba(hex);
 
-    if (isTransparent) {
-        if (pixels[0] == 0 && pixels[1] == 0 && pixels[2] == 0) {
+    if (transparent) {
+        //transparent = hexTorgba(transparent);
+        if (pixels[0] == transparent[0] && pixels[1] == transparent[1] && pixels[2] == transparent[2]) {
             return false;
         }
     }
