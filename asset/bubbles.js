@@ -1,8 +1,8 @@
 var canvas = document.createElement("canvas");
 const data = [];
 var mouse = null;
+
 window.addEventListener("DOMContentLoaded", () => {
-    // canvas.style.background = "#ff88";
     document.body.append(canvas);
 });
 
@@ -12,7 +12,6 @@ canvas.addEventListener("mousemove", (event) => {
         y: event.offsetY,
         size: 35,
     }
-
 });
 canvas.addEventListener("mouseleave", (event) => {
     mouse = null;
@@ -24,7 +23,7 @@ const Bubbles = (id) => {
      * @var Canvas canvas
      */
     let canvas2 = document.getElementById(id.replace("#", ""));
-   // canvas2.style.display = "none"
+    // canvas2.style.display = "none"
 
     canvas2.style.background = "#ff8";
 
@@ -34,7 +33,7 @@ const Bubbles = (id) => {
     var ctx = canvas2.getContext("2d");
 
 
-    let img = new Image(400, 400);
+    let img = new Image();
     img.crossOrigin = "anonymous"
 
     img.onload = () => {
@@ -43,17 +42,13 @@ const Bubbles = (id) => {
         canvas2.width = img.naturalWidth;
         ctx.drawImage(img, 0, 0);
 
-        doRenderCopy(canvas2);
+        doRender(canvas2);
     }
 
     img.src = "https://il4mb.github.io/asset/vector/ILB-nobg.svg";
-    //img.src = "https://picsum.photos/200/300";
-
-    //img.src = "/black-dot.jpg";
-   // img.src = "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Indosiar_2015.svg/300px-Indosiar_2015.svg.png"
 }
 
-function doRenderCopy(scanvas) {
+function doRender(scanvas) {
 
     let time = 1;
     let size = 10;
@@ -68,26 +63,19 @@ function doRenderCopy(scanvas) {
 
         let dy = iy * size;
 
-       // setTimeout(() => {
+        for (let ix = 0; ix < sw / size; ix++) {
 
+            let dx = ix * size;
 
-            for (let ix = 0; ix < sw / size; ix++) {
+            var imgd = scanvas.getContext("2d").getImageData(dx, dy, size, size);
+            let f = getColorFromData(imgd.data, "#000000");
 
-                let dx = ix * size;
-
-             //   setTimeout(() => {
-
-                    var imgd = scanvas.getContext("2d").getImageData(dx, dy, size, size);
-
-                    let f = getColorFromData(imgd.data, "#000000");
-
-                    if (f) {
-                        data.push({ x: dx, y: dy, c: f, s: size / 2.2})
-                    }
-                    drawSquare(scanvas.getContext("2d"), dx, dy, size, size);
-           //     }, 5 * ix)
+            if (f) {
+                data.push({ x: dx, y: dy, c: f, s: size / 2.2 })
             }
-       // }, 200 * iy);
+            drawSquare(scanvas.getContext("2d"), dx, dy, size, size);
+
+        }
     }
     draw();
 }
@@ -96,12 +84,6 @@ function draw() {
 
     const ctx = canvas.getContext("2d");
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    if (mouse) {
-
-      //  drawDot(canvas.getContext("2d"), mouse.size, mouse.x, mouse.y, "#ff44");
-    }
-
 
     data.forEach(item => {
 
@@ -115,9 +97,7 @@ function draw() {
             let tx = Math.round(item.move.target.x),
                 ty = Math.round(item.move.target.y),
                 ox = Math.round(item.move.origin.x),
-                oy = Math.round(item.move.origin.y),
-                sx = Math.round(x),
-                sy = Math.round(y);
+                oy = Math.round(item.move.origin.y);
 
             let xmath = ox > tx ? "-" : (ox < tx ? "+" : null);
             let ymath = oy > ty ? "-" : (oy < ty ? "+" : null);
@@ -134,7 +114,7 @@ function draw() {
                 item.move.origin.y += speed;
             }
 
-            if ( ox == tx && oy == ty) {
+            if (ox == tx && oy == ty) {
 
                 if (mouse) {
 
@@ -147,7 +127,7 @@ function draw() {
 
                     var distance = Math.sqrt(dx * dx + dy * dy);
 
-                    if (distance -50> R) {
+                    if (distance - 50 > R) {
                         item.move.target.x = item.x;
                         item.move.target.y = item.y;
                     }
@@ -182,8 +162,8 @@ function draw() {
             let strenght = R - distance;
             if (distance < R) {
 
-                let tx = x + (dix * strenght);
-                let ty = y + (diy * strenght);
+                let tx = x + (dix * (strenght/2));
+                let ty = y + (diy * (strenght/2));
 
                 item.move = {
 
@@ -208,7 +188,7 @@ function drawDot(ctx, s = 0, x, y, fill = false) {
 
     ctx.beginPath();
     ctx.arc(x, y, s, 0, 2 * Math.PI);
-    ctx.strokeStyle = "rgb(0 0 0 /1)";
+    ctx.strokeStyle = "rgb(0 0 0 /0.3)";
     ctx.stroke();
 
     if (fill || fill == "null") {

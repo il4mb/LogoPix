@@ -1,18 +1,28 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <script src="/asset/bubbles.js"></script>
+    <script src="/asset/logopix.js"></script>
 </head>
+
 <body>
     <h1>poto kopi asik asik aja</h1>
-    <canvas id="canvas"></canvas>
+    <div id="canvas" style="margin: auto; display: inline-block;"></div>
 
     <script>
-        Bubbles("#canvas");
+        var logopix = LogoPix("https://il4mb.github.io/asset/vector/ILB-nobg.svg");
+        logopix.builder()
+            .setAlpha("#000000")
+            .setWidth(100)
+            .setHeight(100)
+            .setStrokeColor("red")
+
+        logopix.draw("#canvas");
     </script>
 </body>
+
 </html>
