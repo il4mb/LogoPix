@@ -1,12 +1,19 @@
 {
-  "name": "bubbles",
+  "name": "logopix",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "start": "/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "description": "animation of the balls from the photo",
+  "author": "Ilham B",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/il4mb/LogoPix.git"
   },
-  "author": "",
-  "license": "ISC"
+  "keywords": [
+    "Logo",
+    "Canvas"
+  ],
+  "bugs": {
+    "url": "https://github.com/il4mb/LogoPix/issues"
+  },
+  "homepage": "https://github.com/il4mb/LogoPix#readme"
 }
